@@ -12,9 +12,6 @@ There are no accounts and no server. Your files never leave your device.
 
 > Status: **Phase 0** (foundations and technical spikes). See [PLAN.md](PLAN.md) for the full plan and roadmap.
 
-## Design
-
-The interface was designed in Claude Design. These are the design boards; the app follows them closely, with a few differences (for example, the design's working name was "Quiet", and its books are placeholders).
 
 | Reader | Library |
 |---|---|
