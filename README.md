@@ -12,6 +12,18 @@ There are no accounts and no server. Your files never leave your device.
 
 > Status: **Phase 0** (foundations and technical spikes). See [PLAN.md](PLAN.md) for the full plan and roadmap.
 
+## Design
+
+The interface was designed in Claude Design. These are the design boards; the app follows them closely, with a few differences (for example, the design's working name was "Quiet", and its books are placeholders).
+
+| Reader | Library |
+|---|---|
+| ![Reader: the page in the centre, a selection toolbar, and the notes panel on the right](docs/design/reader.png) | ![Library: a continue-reading card above a shelf of book covers](docs/design/library.png) |
+
+**Focus mode**
+
+![Focus mode: the page in night colours with all controls hidden](docs/design/focus.png)
+
 ## Requirements
 
 - **Node.js 20.19+ or 22.12+** (required by Vite 8). Check with `node -v`.
