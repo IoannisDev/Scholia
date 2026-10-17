@@ -177,3 +177,30 @@ test('Table of contents: a short outline starts fully open', async ({ page }) =>
   await toc.getByRole('button', { name: /^Edit target page/ }).click()
   await expect(page.locator('.page-indicator')).toHaveText('4 / 4')
 })
+
+test('Library: removing a book deletes its stored copy, highlights and notes', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Sample', exact: true }).click()
+  await page.locator('[data-page="0"] .textLayer span').filter({ hasText: /\S/ }).nth(1).click({ clickCount: 3 })
+  await page.keyboard.press('1')
+  await page.locator('#quick-note').fill('A page note.')
+  await page.getByRole('button', { name: 'Save note' }).click()
+  await page.getByRole('button', { name: 'Library', exact: true }).first().click()
+
+  const remove = page.getByRole('button', { name: 'Remove Scholia sample from library' })
+  page.once('dialog', (d) => d.dismiss())
+  await remove.click()
+  await expect(remove).toBeVisible() // cancelling keeps it
+
+  page.once('dialog', (d) => d.accept())
+  await remove.click()
+  await expect(page.getByText('Your shelf is empty')).toBeVisible()
+  const left = await page.evaluate(async () => {
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith('scholia:'))
+    const db = await new Promise<IDBDatabase>((r) => (indexedDB.open('scholia').onsuccess = (e) => r((e.target as IDBOpenDBRequest).result)))
+    const count = (store: string) =>
+      new Promise<number>((r) => (db.transaction(store).objectStore(store).count().onsuccess = (e) => r((e.target as IDBRequest<number>).result)))
+    return { keys, books: await count('books'), files: await count('files') }
+  })
+  expect(left).toEqual({ keys: [], books: 0, files: 0 })
+})

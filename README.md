@@ -40,11 +40,19 @@ npm run preview    # serves dist/ at http://localhost:4173
 
 `dist/` is plain static files, so any static host works. It must be served over HTTP(S). Opening `index.html` from disk won't work, because the PDF and editor workers can't load from `file://`.
 
+**Security headers.** The built `index.html` carries a Content Security Policy that stops the page from contacting any other site. A policy set in the page doesn't reach its background workers, though, so when hosting, also send it as an HTTP header (this covers the PDF and editor workers too) and forbid framing:
+
+```
+Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; connect-src 'self'; img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+```
+
+The policy is defined once, in `vite.config.ts` (`CSP`). Keep the header in step with it.
+
 ## Using Scholia
 
 | Where | What you can do |
 |---|---|
-| **Library** | Search by title or author, filter the shelf (All / Reading / To read / Finished), and click **Resume reading** to return to the page you left. |
+| **Library** | Search by title or author, filter the shelf (All / Reading / To read / Finished), and click **Resume reading** to return to the page you left. Hover a book (or tap the bin on a tablet) to remove it from this device along with its highlights and notes. |
 | **Reader** | Scroll through pages, zoom, and follow your progress in the footer. **‹ Library** takes you back. |
 | **Contents** | Open the table of contents from the left bar (or press `T`) and click an entry to jump to it. The section you're reading is highlighted as you scroll. It comes from the PDF's own outline, so PDFs without one show a short message instead. |
 | **Highlights** | Select text, then click a colour in the dark toolbar or press `1`–`5`. Highlights can cross page breaks. Click a highlight to recolour or delete it. |
@@ -71,7 +79,7 @@ Everything stays in your browser's storage for this site:
 - **IndexedDB** stores your library: a copy of each PDF you open and your reading position.
 - **localStorage** stores highlights and notes.
 
-Clearing this site's data in your browser deletes your library. Use **Export as Markdown** to keep a copy of your notes.
+A PDF is kept from the first time you open it until you remove it from the Library (or clear this site's data in your browser). On a shared computer, remove anything sensitive when you're done. Use **Export as Markdown** to keep a copy of your notes.
 
 ## Development
 

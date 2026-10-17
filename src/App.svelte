@@ -10,7 +10,7 @@
   import { COLORS, type Highlight, type PageNote } from './lib/annotations/types'
   import { toMarkdown } from './lib/annotations/markdown'
   import { loadOutline, type TocItem } from './lib/pdf/outline'
-  import { getBook, getFile, listBooks, putBook, updateBook, type Book } from './lib/library/store'
+  import { getBook, getFile, listBooks, putBook, removeBook, updateBook, type Book } from './lib/library/store'
 
   GlobalWorkerOptions.workerSrc = workerUrl
 
@@ -156,6 +156,19 @@
     const data = await getFile(book.id).catch(() => undefined)
     if (!data) return toast('This PDF is no longer stored on this device')
     await load(data, book.fileName)
+  }
+
+  async function forget(book: Book) {
+    if (!confirm(`Remove “${book.title}” from this device? Its highlights and notes will be deleted too.`)) return
+    try {
+      await removeBook(book.id)
+      localStorage.removeItem('scholia:hl:' + book.id)
+      localStorage.removeItem('scholia:notes:' + book.id)
+      toast(`Removed “${book.title}”`)
+    } catch {
+      toast('Could not remove this PDF (storage unavailable)')
+    }
+    await refreshBooks()
   }
 
   async function goHome() {
@@ -457,7 +470,7 @@
     {/if}
   </div>
 {:else}
-  <Library {books} onOpen={openBook} onAdd={() => fileInput.click()} onFixture={openFixture} />
+  <Library {books} onOpen={openBook} onRemove={forget} onAdd={() => fileInput.click()} onFixture={openFixture} />
 {/if}
 
 {#if status}<div class="status" role="status">{status}</div>{/if}

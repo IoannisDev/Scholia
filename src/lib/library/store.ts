@@ -61,6 +61,17 @@ export async function updateBook(id: string, patch: Partial<Book>): Promise<void
   if (book) await run(BOOKS, 'readwrite', (s) => s.put({ ...book, ...patch }))
 }
 
+/** Deletes the stored copy of a book and its record. */
+export async function removeBook(id: string): Promise<void> {
+  const tx = (await open()).transaction([BOOKS, FILES], 'readwrite')
+  tx.objectStore(BOOKS).delete(id)
+  tx.objectStore(FILES).delete(id)
+  await new Promise<void>((resolve, reject) => {
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+}
+
 export function getFile(id: string): Promise<Uint8Array | undefined> {
   return run(FILES, 'readonly', (s) => s.get(id))
 }

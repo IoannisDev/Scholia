@@ -6,11 +6,12 @@
   interface Props {
     books: Book[]
     onOpen: (book: Book) => void
+    onRemove: (book: Book) => void
     onAdd: () => void
     onFixture: (name: string) => void
   }
 
-  let { books, onOpen, onAdd, onFixture }: Props = $props()
+  let { books, onOpen, onRemove, onAdd, onFixture }: Props = $props()
 
   // Typographic covers, picked from the title so a book keeps its colour.
   const COVERS = [
@@ -133,13 +134,18 @@
 
         <div class="grid">
           {#each shown as book (book.id)}
-            <button class="card" onclick={() => onOpen(book)}>
-              {@render bookCover(book, false)}
-              <span class="card-text">
-                <span class="card-title">{book.title}</span>
-                <span class="card-status">{status(book)}</span>
-              </span>
-            </button>
+            <div class="card-wrap">
+              <button class="card" onclick={() => onOpen(book)}>
+                {@render bookCover(book, false)}
+                <span class="card-text">
+                  <span class="card-title">{book.title}</span>
+                  <span class="card-status">{status(book)}</span>
+                </span>
+              </button>
+              <button class="remove" aria-label="Remove {book.title} from library" title="Remove from library" onclick={() => onRemove(book)}>
+                <Icon name="trash" size={16} />
+              </button>
+            </div>
           {:else}
             <p class="none">No books match.</p>
           {/each}
@@ -404,8 +410,42 @@
     gap: 40px 28px;
     margin-top: 28px;
   }
+  .card-wrap {
+    position: relative;
+  }
+  /* Shown on hover or keyboard focus; always shown on touch screens, which have no hover. */
+  .remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: var(--page);
+    color: var(--text-2);
+    box-shadow: 0 2px 8px rgb(29 35 33 / 0.25);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .card-wrap:hover .remove,
+  .remove:focus-visible {
+    opacity: 1;
+  }
+  .remove:hover {
+    color: var(--danger);
+  }
+  @media (pointer: coarse) {
+    .remove {
+      opacity: 1;
+    }
+  }
   .card {
     display: flex;
+    width: 100%;
     flex-direction: column;
     gap: 12px;
     padding: 0;
