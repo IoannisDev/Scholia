@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/instrument-sans';
+@import '@fontsource-variable/literata/opsz.css';
+
+/* Design tokens: a quiet reading room. Warm paper greys, one deep green accent, colour only where it means something. */
+:root {
+  --bg: #edece6;
+  --sidebar: #f6f5f0;
+  --page: #fcfbf8;
+  --canvas-bg: #edece6;
+  --text: #1d2321;
+  --text-2: #5b635e;
+  --text-3: rgb(29 35 33 / 0.5);
+  --hover: rgb(29 35 33 / 0.07);
+  --active: rgb(29 35 33 / 0.1);
+  --divider: #d8d7cf;
+  --accent: #2b5748;
+  --accent-soft: #dae6df;
+  --on-accent: #f6f5f0;
+  --ink-surface: #1d2321;
+  --on-ink: #f2f1ec;
+  --popover: #fcfbf8;
+  --popover-shadow: rgb(29 35 33 / 0.06) 0 0 0 1px, rgb(29 35 33 / 0.1) 0 3px 6px, rgb(29 35 33 / 0.18) 0 12px 24px -8px;
+  --page-shadow: 0 1px 0 rgb(29 35 33 / 0.05), 0 24px 48px -28px rgb(29 35 33 / 0.28);
+  --danger: #b4443c;
+  --control: 28px;
+  --touch: 44px;
+  --font: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Literata Variable', Georgia, ui-serif, serif;
+  color-scheme: light;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Night palette, shared by dark mode and Focus mode. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131716;
+    --sidebar: #1a1f1d;
+    --page: #1d2321;
+    --canvas-bg: #131716;
+    --text: #dad8cf;
+    --text-2: #8f9892;
+    --text-3: rgb(218 216 207 / 0.4);
+    --hover: rgb(218 216 207 / 0.07);
+    --active: rgb(218 216 207 / 0.12);
+    --divider: #2c3330;
+    --accent: #8fc2ae;
+    --accent-soft: rgb(143 194 174 / 0.16);
+    --on-accent: #131716;
+    --ink-surface: #2c3330;
+    --on-ink: #dad8cf;
+    --popover: #1d2321;
+    --popover-shadow: rgb(0 0 0 / 0.3) 0 0 0 1px, rgb(0 0 0 / 0.3) 0 3px 6px, rgb(0 0 0 / 0.4) 0 12px 24px -8px;
+    --page-shadow: 0 0 0 1px rgb(0 0 0 / 0.3), 0 24px 48px -28px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+/* Focus mode is always night, whatever the system theme. Keep in sync with the block above. */
+.night {
+  --bg: #131716;
+  --sidebar: #1a1f1d;
+  --page: #1d2321;
+  --canvas-bg: #131716;
+  --text: #dad8cf;
+  --text-2: #8f9892;
+  --text-3: rgb(218 216 207 / 0.4);
+  --hover: rgb(218 216 207 / 0.07);
+  --active: rgb(218 216 207 / 0.12);
+  --divider: #2c3330;
+  --accent: #8fc2ae;
+  --accent-soft: rgb(143 194 174 / 0.16);
+  --on-accent: #131716;
+  --ink-surface: #2c3330;
+  --on-ink: #dad8cf;
+  --popover: #1d2321;
+  --popover-shadow: rgb(0 0 0 / 0.3) 0 0 0 1px, rgb(0 0 0 / 0.3) 0 3px 6px, rgb(0 0 0 / 0.4) 0 12px 24px -8px;
+  --page-shadow: 0 0 0 1px rgb(0 0 0 / 0.3), 0 24px 48px -28px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+  color: var(--text);
+}
+
+/* Touch devices get larger hit targets. */
+@media (pointer: coarse) {
+  :root {
+    --control: 40px;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+button {
+  cursor: pointer;
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* pdf.js text layer: transparent text positioned over the canvas so it can be selected.
+   Adapted from pdfjs-dist/web/pdf_viewer.css. */
+.textLayer {
+  position: absolute;
+  text-align: initial;
+  inset: 0;
+  overflow: clip;
+  opacity: 1;
+  line-height: 1;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+  forced-color-adjust: none;
+  transform-origin: 0 0;
+  z-index: 2;
+  --min-font-size: 1;
+  --text-scale-factor: calc(var(--total-scale-factor) * var(--min-font-size));
+  --min-font-size-inv: calc(1 / var(--min-font-size));
+}
+.textLayer :is(span, br) {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select: text;
+}
+.textLayer > :not(.markedContent),
+.textLayer .markedContent span:not(.markedContent) {
+  z-index: 1;
+  --font-height: 0;
+  font-size: calc(var(--text-scale-factor) * var(--font-height));
+  --scale-x: 1;
+  --rotate: 0deg;
+  transform: rotate(var(--rotate)) scaleX(var(--scale-x)) scale(var(--min-font-size-inv));
+}
+.textLayer .markedContent {
+  display: contents;
+}
+.textLayer span[role='img'] {
+  user-select: none;
+  cursor: default;
+}
+.textLayer ::selection {
+  background: rgb(43 87 72 / 0.25);
+}
+.textLayer br::selection {
+  background: transparent;
+}
+.textLayer .endOfContent {
+  display: block;
+  position: absolute;
+  inset: 100% 0 0;
+  z-index: 0;
+  cursor: default;
+  user-select: none;
+}
+.textLayer.selecting .endOfContent {
+  top: 0;
+}
